@@ -104,3 +104,13 @@ prometheus:
           - default
       endpoints:
         - port: "service-port"
+    - name: "vllm-router-monitor"
+      selector:
+        matchLabels:
+          environment: router
+          release: router
+      namespaceSelector:
+        matchNames:
+          - default
+      endpoints:
+        - port: "router-sport"
