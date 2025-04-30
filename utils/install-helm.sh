@@ -12,10 +12,13 @@ if helm_exists; then
     exit 0
 fi
 
+export HELM_INSTALL_DIR=$HOME/install/vllm/bin
+mkdir -p $HELM_INSTALL_DIR
+
 # Install Helm
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
 chmod 700 get_helm.sh
-./get_helm.sh
+./get_helm.sh --no-sudo
 
 # Test helm installation
 if helm_exists; then

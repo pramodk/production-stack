@@ -5,6 +5,10 @@ set -e
 : "${NVIDIA_SMI_PATH:=nvidia-smi}"
 : "${NVIDIA_CTK_PATH:=nvidia-ctk}"
 
+export VLLM_INSTALL_DIR=$HOME/install/vllm
+mkdir -p $VLLM_INSTALL_DIR/bin
+export PATH=$VLLM_INSTALL_DIR/bin:$PATH
+
 # --- Debug and Environment Setup ---
 echo "Current PATH: $PATH"
 echo "Operating System: $(uname -a)"
@@ -29,8 +33,10 @@ if minikube_exists; then
 else
   echo "Minikube not found. Installing minikube..."
   curl -LO https://github.com/kubernetes/minikube/releases/latest/download/minikube-linux-amd64
-  sudo install minikube-linux-amd64 /usr/local/bin/minikube && rm minikube-linux-amd64
+  install minikube-linux-amd64 $VLLM_INSTALL_DIR/bin/minikube && rm minikube-linux-amd64
 fi
+
+if false; then
 
 # --- Configure BPF (if available) ---
 if [ -f /proc/sys/net/core/bpf_jit_harden ]; then
@@ -55,7 +61,13 @@ else
     echo "No NVIDIA GPU detected. Will start minikube without GPU support."
 fi
 
+else
+    GPU_AVAILABLE=true
+    echo "Dlcluster: Assume docker is setup correctly!"
+fi
+
 if [ "$GPU_AVAILABLE" = true ]; then
+    if false; then
     # Configure Docker for GPU support.
     echo "Configuring Docker runtime for GPU support..."
     if sudo "$NVIDIA_CTK_PATH" runtime configure --runtime=docker; then
@@ -65,6 +77,7 @@ if [ "$GPU_AVAILABLE" = true ]; then
     else
       echo "Error: Failed to configure Docker runtime using the NVIDIA Container Toolkit."
       exit 1
+    fi
     fi
 
     # Start minikube with GPU support.
